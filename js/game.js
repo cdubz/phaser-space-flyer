@@ -54,8 +54,8 @@ function create() {
 
 function update() {
     // Reset ship movement
-    ship.body.velocity.x = 0;
-    ship.body.velocity.y = 0;
+    ship.body.velocity.x *= 0.98;
+    ship.body.velocity.y *= 0.98;
     ship.body.angularAcceleration = 0;
 
     if (cursors.left.isDown) {
