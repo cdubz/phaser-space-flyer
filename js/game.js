@@ -40,7 +40,7 @@ function create() {
 
     // Ship ship properties for acceleration
     ship.body.maxAngular = 100;
-    ship.body.angularDrag = 200;
+    ship.body.angularDrag = 100;
     ship.body.drag = 500;
 
     // Tell camera to follow the player's ship
@@ -54,8 +54,8 @@ function create() {
 
 function update() {
     // Reset ship movement
-    ship.body.velocity.x *= 0.98;
-    ship.body.velocity.y *= 0.98;
+    ship.body.velocity.x *= 0.9;
+    ship.body.velocity.y *= 0.9;
     ship.body.angularAcceleration = 0;
 
     if (cursors.left.isDown) {
@@ -65,8 +65,6 @@ function update() {
         ship.body.angularAcceleration += 200;
     }
     if (cursors.up.isDown) {
-        //game.camera.x += 4;
-        // How to do this with acceleration?
         game.physics.arcade.velocityFromAngle(ship.angle - 90, 300, ship.body.velocity)
     }
 }
