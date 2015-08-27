@@ -64,7 +64,7 @@ function update() {
     else if (cursors.right.isDown) {
         ship.body.angularAcceleration += 200;
     }
-    else if (cursors.up.isDown) {
+    if (cursors.up.isDown) {
         //game.camera.x += 4;
         // How to do this with acceleration?
         game.physics.arcade.velocityFromAngle(ship.angle - 90, 300, ship.body.velocity)
