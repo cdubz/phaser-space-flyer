@@ -10,6 +10,7 @@ var PSF = {
       game.load.image('space', 'assets/starfield.png');
       game.load.image('ship', 'assets/ship.png');
       game.load.image('bullet-laser', 'assets/bullet-laser.png');
+      game.load.image('fs-button', 'assets/fs-button.png');
   },
 
   create: function() {
@@ -19,6 +20,12 @@ var PSF = {
       // Start arcade physics and add in the background
       game.physics.startSystem(Phaser.Physics.ARCADE);
       game.add.tileSprite(-1000, -1000, 2000, 2000, 'space');
+      
+      // Set up ScaleManager options for full screen support
+      game.scale.fullScreenScaleMode = Phaser.ScaleManager.SHOW_ALL;
+      fullscreenButton = game.add.button(game.world.camera.view.width - 40, 15, 
+        'fs-button', this.toggleFullscreen, this);
+      fullscreenButton.fixedToCamera = true;
 
       // Set up bullets
       bullets = game.add.group();
@@ -84,6 +91,15 @@ var PSF = {
       }
   },
 
+  toggleFullscreen: function() {
+      if (game.scale.isFullScreen) {
+          game.scale.stopFullScreen();
+      }
+      else {
+          game.scale.startFullScreen(false);
+      }
+  },
+  
   fireWeapon: function() {
       if (game.time.now > this.nextFire && bullets.countDead() > 0) {
           this.nextFire = game.time.now + this.fireRate;
