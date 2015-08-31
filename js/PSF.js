@@ -7,28 +7,43 @@ var PSF = {
 
   preload: function() {
       // Load up the assets we will use for this game
-      game.load.image('space', 'assets/starfield.png');
-      game.load.image('ship', 'assets/ship.png');
-      game.load.image('bullet-laser', 'assets/bullet-laser.png');
-      game.load.image('fs-button', 'assets/fs-button.png');
+      this.game.load.image('space', 'assets/starfield.png');
+      this.game.load.image('ship', 'assets/ship.png');
+      this.game.load.image('bullet-laser', 'assets/bullet-laser.png');
+      this.game.load.image('fs-button', 'assets/fs-button.png');
+      
+      // Load plugins
+      this.game.kineticScrolling = this.game.plugins.add(Phaser.Plugin.KineticScrolling);
   },
 
   create: function() {
+      // Start and config Kinetic Scrolling for camera movement
+      this.game.kineticScrolling.start();
+      this.game.kineticScrolling.configure({
+          kineticMovement: true,
+          timeConstantScroll: 325, //really mimic iOS
+          horizontalScroll: true,
+          verticalScroll: true,
+          horizontalWheel: false,
+          verticalWheel: false,
+          deltaWheel: 40
+      });
+          
       // Adjust world bound
       game.world.setBounds(-1000, -1000, 2000, 2000);
 
       // Start arcade physics and add in the background
-      game.physics.startSystem(Phaser.Physics.ARCADE);
-      game.add.tileSprite(-1000, -1000, 2000, 2000, 'space');
+      this.game.physics.startSystem(Phaser.Physics.ARCADE);
+      this.game.add.tileSprite(-1000, -1000, 2000, 2000, 'space');
       
       // Set up ScaleManager options for full screen support
-      game.scale.fullScreenScaleMode = Phaser.ScaleManager.SHOW_ALL;
-      fullscreenButton = game.add.button(game.world.camera.view.width - 40, 15, 
+      this.game.scale.fullScreenScaleMode = Phaser.ScaleManager.SHOW_ALL;
+      fullscreenButton = this.game.add.button(game.world.camera.view.width - 40, 15, 
         'fs-button', this.toggleFullscreen, this);
       fullscreenButton.fixedToCamera = true;
 
       // Set up bullets
-      bullets = game.add.group();
+      bullets = this.game.add.group();
       bullets.enableBody = true;
       bullets.physicsBodyType = Phaser.Physics.ARCADE;
 
@@ -37,10 +52,10 @@ var PSF = {
       bullets.setAll('outOfBoundsKill', true);
 
       // Set up ship
-      ship = game.add.sprite(350, 275, 'ship');
+      ship = this.game.add.sprite(350, 275, 'ship');
       //ship.fixedToCamera = true;
       ship.anchor.setTo(0.5, 0.5);
-      game.physics.arcade.enable(ship);
+      this.game.physics.arcade.enable(ship);
       ship.body.collideWorldBounds = true;
 
       // Ship ship properties for acceleration
@@ -49,12 +64,12 @@ var PSF = {
       ship.body.drag = 500;
 
       // Tell camera to follow the player's ship
-      game.camera.follow(ship);
+      //this.game.camera.follow(ship);
 
       // Initiate controls
       // @todo: For some reason UP+LEFT+SPACE does not fire, but UP+RIGHT+SPACE does.
-      cursors = game.input.keyboard.createCursorKeys();
-      fire = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+      cursors = this.game.input.keyboard.createCursorKeys();
+      fire = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
       fire.onDown.add(this.fireWeapon, this);
   },
 
