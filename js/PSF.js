@@ -22,12 +22,8 @@ var PSF = {
       this.game.kineticScrolling.start();
       this.game.kineticScrolling.configure({
           kineticMovement: true,
-          timeConstantScroll: 325, //really mimic iOS
           horizontalScroll: true,
           verticalScroll: true,
-          horizontalWheel: false,
-          verticalWheel: false,
-          deltaWheel: 40
       });
           
       // Adjust world bound
@@ -54,7 +50,6 @@ var PSF = {
 
       // Set up ship
       ship = this.game.add.sprite(350, 275, 'ship');
-      //ship.fixedToCamera = true;
       ship.anchor.setTo(0.5, 0.5);
       this.game.physics.arcade.enable(ship);
       ship.body.collideWorldBounds = true;
@@ -64,11 +59,7 @@ var PSF = {
       ship.body.angularDrag = 100;
       ship.body.drag = 500;
 
-      // Tell camera to follow the player's ship
-      //this.game.camera.follow(ship);
-
       // Initiate controls
-      cursors = this.game.input.keyboard.createCursorKeys();
       fire = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
       fire.onDown.add(this.fireWeapon, this);
       
@@ -80,10 +71,18 @@ var PSF = {
   // @see https://github.com/photonstorm/phaser/blob/486c15f16fd7c2f154d55cb0239fa0dbdeaed1f8/src/input/Pointer.js#L930
   moveOnDoubleTap: function(pointer, doubleTap) {
       if (doubleTap) {
-          // Add crosshair
+        
+          // Destory any existing crosshair
+          if (this.movementTarget && this.movementTarget.alive) {
+              this.movementTarget.destroy();
+          }
+          
+          // Create new crosshair
           this.movementTarget = this.game.add.sprite(pointer.worldX, 
               pointer.worldY, 'crosshair');
           game.physics.arcade.enable(this.movementTarget);
+          
+          // Turn ship towards crosshair
           
           // Initiate ship movement
           this.game.physics.arcade.moveToPointer(ship);
@@ -99,27 +98,12 @@ var PSF = {
           
           // Stop ship on overlap
           if (game.physics.arcade.overlap(ship, this.movementTarget)) {
-              ship.body.velocity = 0;
+              ship.body.velocity.x = 0;
+              ship.body.velocity.y = 0;
               this.game.camera.unfollow(ship);
               this.movementTarget.destroy();
           }
       }
-      
-      // Reset ship movement
-      /*ship.body.velocity.x *= 0.9;
-      ship.body.velocity.y *= 0.9;
-      ship.body.angularAcceleration = 0;
-
-      if (cursors.left.isDown) {
-          ship.body.angularAcceleration -= 200;
-      }
-      else if (cursors.right.isDown) {
-          ship.body.angularAcceleration += 200;
-      }
-      
-      if (cursors.up.isDown) {
-          this.game.physics.arcade.velocityFromAngle(ship.angle - 90, 300, ship.body.velocity)
-      }*/
   },
 
   render: function() {
