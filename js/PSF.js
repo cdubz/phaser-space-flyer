@@ -11,6 +11,7 @@ var PSF = {
       this.game.load.image('ship', 'assets/ship.png');
       this.game.load.image('bullet-laser', 'assets/bullet-laser.png');
       this.game.load.image('fs-button', 'assets/fs-button.png');
+      this.game.load.image('crosshair', 'assets/crosshair.png');
       
       // Load plugins
       this.game.kineticScrolling = this.game.plugins.add(Phaser.Plugin.KineticScrolling);
@@ -67,15 +68,45 @@ var PSF = {
       //this.game.camera.follow(ship);
 
       // Initiate controls
-      // @todo: For some reason UP+LEFT+SPACE does not fire, but UP+RIGHT+SPACE does.
       cursors = this.game.input.keyboard.createCursorKeys();
       fire = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
       fire.onDown.add(this.fireWeapon, this);
+      
+      this.game.input.onTap.add(this.moveOnDoubleTap, this);
+  },
+  
+  // This second parameter is not well documented, but it's there and uses
+  // game.input.doubleTapeRate to judge.
+  // @see https://github.com/photonstorm/phaser/blob/486c15f16fd7c2f154d55cb0239fa0dbdeaed1f8/src/input/Pointer.js#L930
+  moveOnDoubleTap: function(pointer, doubleTap) {
+      if (doubleTap) {
+          // Add crosshair
+          this.movementTarget = this.game.add.sprite(pointer.worldX, 
+              pointer.worldY, 'crosshair');
+          game.physics.arcade.enable(this.movementTarget);
+          
+          // Initiate ship movement
+          this.game.physics.arcade.moveToPointer(ship);
+          
+          // Adjust camera to follow ship
+          this.game.camera.follow(ship);
+      }
   },
 
   update: function() {
+      // Check for a movementTarget and update when the ship arrives
+      if (this.movementTarget && this.movementTarget.alive) {
+          
+          // Stop ship on overlap
+          if (game.physics.arcade.overlap(ship, this.movementTarget)) {
+              ship.body.velocity = 0;
+              this.game.camera.unfollow(ship);
+              this.movementTarget.destroy();
+          }
+      }
+      
       // Reset ship movement
-      ship.body.velocity.x *= 0.9;
+      /*ship.body.velocity.x *= 0.9;
       ship.body.velocity.y *= 0.9;
       ship.body.angularAcceleration = 0;
 
@@ -87,8 +118,8 @@ var PSF = {
       }
       
       if (cursors.up.isDown) {
-          game.physics.arcade.velocityFromAngle(ship.angle - 90, 300, ship.body.velocity)
-      }
+          this.game.physics.arcade.velocityFromAngle(ship.angle - 90, 300, ship.body.velocity)
+      }*/
   },
 
   render: function() {
