@@ -1,7 +1,7 @@
 var PSF = {
 
   // Main config elements
-  debugMode: false,
+  debugMode: true,
   fireRate: 100,
   nextFire: 0,
 
@@ -81,9 +81,12 @@ var PSF = {
           this.movementTarget = this.game.add.sprite(pointer.worldX, 
               pointer.worldY, 'crosshair');
           game.physics.arcade.enable(this.movementTarget);
+
           
           // Turn ship towards crosshair
-          
+          var targetAngle = this.game.physics.arcade.angleToPointer(ship, pointer) + Math.PI / 2;
+          ship.rotation = targetAngle;
+
           // Initiate ship movement
           this.game.physics.arcade.moveToPointer(ship);
           
@@ -111,7 +114,7 @@ var PSF = {
           game.debug.cameraInfo(game.camera, 32, 220);
           game.debug.spriteInfo(ship, 32, 32);
           game.debug.text('angularVelocity: ' + ship.body.angularVelocity, 32, 120);
-          game.debug.text('angularAcceleration: ' + ship.body.angularAcceleration, 32, 140);
+          game.debug.text('angle: ' + ship.body.angle, 32, 140);
           game.debug.text('angularDrag: ' + ship.body.angularDrag, 32, 160);
           game.debug.text('deltaZ: ' + ship.body.deltaZ(), 32, 180);
           game.debug.text('velocity: (x = ' + ship.body.velocity.x +
