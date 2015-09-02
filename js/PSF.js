@@ -81,7 +81,6 @@ var PSF = {
           this.movementTarget = this.game.add.sprite(pointer.worldX, 
               pointer.worldY, 'crosshair');
           game.physics.arcade.enable(this.movementTarget);
-
           
           // Turn ship towards crosshair
           var targetAngle = this.game.physics.arcade.angleToPointer(ship, pointer) + Math.PI / 2;
