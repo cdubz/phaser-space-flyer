@@ -128,7 +128,7 @@ var PSF = {
           game.scale.stopFullScreen();
       }
       else {
-          game.scale.startFullScreen(false, false);
+          game.scale.startFullScreen(false);
       }
   },
   
