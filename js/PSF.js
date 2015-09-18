@@ -23,19 +23,24 @@ var PSF = {
         this.game.kineticScrolling.configure({
             kineticMovement: true,
             horizontalScroll: true,
-            verticalScroll: true
+            verticalScroll: true,
+            horizontalWheel: false
         });
 
         // Adjust world bound
-        game.world.setBounds(-1000, -1000, 2000, 2000);
+        game.world.setBounds(0, 0, 5000, 5000);
+
+        // Center the camera
+        this.game.camera.x = this.game.world.bounds.halfWidth - this.game.camera.width / 2;
+        this.game.camera.y = this.game.world.bounds.halfHeight - this.game.camera.height / 2;
 
         // Start arcade physics and add in the background
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
-        this.game.add.tileSprite(-1000, -1000, 2000, 2000, 'space');
+        this.game.add.tileSprite(0, 0, 5000, 5000, 'space');
 
         // Set up ScaleManager options for full screen support
         this.game.scale.fullScreenScaleMode = Phaser.ScaleManager.SHOW_ALL;
-        fullscreenButton = this.game.add.button(game.world.camera.view.width - 40, 15,
+        fullscreenButton = this.game.add.button(5, 5,
             'fs-button', this.toggleFullscreen, this);
         fullscreenButton.fixedToCamera = true;
 
@@ -49,7 +54,8 @@ var PSF = {
         bullets.setAll('outOfBoundsKill', true);
 
         // Set up ship
-        ship = this.game.add.sprite(350, 275, 'ship');
+        ship = this.game.add.sprite(this.game.world.bounds.halfWidth,
+            this.game.world.bounds.halfHeight, 'ship');
         ship.anchor.setTo(0.5, 0.5);
         this.game.physics.arcade.enable(ship);
         ship.body.collideWorldBounds = true;
@@ -62,7 +68,6 @@ var PSF = {
         // Initiate controls
         fire = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
         fire.onDown.add(this.fireWeapon, this);
-
         this.game.input.onTap.add(this.moveOnDoubleTap, this);
     },
 
@@ -86,10 +91,7 @@ var PSF = {
             ship.rotation = this.game.physics.arcade.angleToPointer(ship, pointer) + Math.PI / 2;;
 
             // Initiate ship movement
-            this.game.physics.arcade.moveToPointer(ship);
-
-            // Adjust camera to follow ship
-            this.game.camera.follow(ship);
+            this.game.physics.arcade.moveToPointer(ship, 100);
         }
     },
 
@@ -101,7 +103,6 @@ var PSF = {
           if (game.physics.arcade.overlap(ship, this.movementTarget)) {
               ship.body.velocity.x = 0;
               ship.body.velocity.y = 0;
-              this.game.camera.unfollow(ship);
               this.movementTarget.destroy();
           }
         }
@@ -145,6 +146,7 @@ var PSF = {
     }
 };
 
-var game = new Phaser.Game(800, 600, Phaser.AUTO, 'game-canvas');
+var game = new Phaser.Game(window.innerWidth * window.devicePixelRatio,
+    window.innerHeight * window.devicePixelRatio, Phaser.AUTO, 'game-canvas');
 game.state.add('PSF', PSF);
 game.state.start('PSF');
