@@ -1,103 +1,102 @@
 var PSF = {
 
-  // Main config elements
-  debugMode: false,
-  fireRate: 100,
-  nextFire: 0,
+    // Main config elements
+    debugMode: false,
+    fireRate: 100,
+    nextFire: 0,
 
-  preload: function() {
-      // Load up the assets we will use for this game
-      this.game.load.image('space', 'assets/starfield.png');
-      this.game.load.image('ship', 'assets/ship.png');
-      this.game.load.image('bullet-laser', 'assets/bullet-laser.png');
-      this.game.load.image('fs-button', 'assets/fs-button.png');
-      this.game.load.image('crosshair', 'assets/crosshair.png');
-      
-      // Load plugins
-      this.game.kineticScrolling = this.game.plugins.add(Phaser.Plugin.KineticScrolling);
-  },
+    preload: function() {
+        // Load up the assets we will use for this game
+        this.game.load.image('space', 'assets/starfield.png');
+        this.game.load.image('ship', 'assets/ship.png');
+        this.game.load.image('bullet-laser', 'assets/bullet-laser.png');
+        this.game.load.image('fs-button', 'assets/fs-button.png');
+        this.game.load.image('crosshair', 'assets/crosshair.png');
 
-  create: function() {
-      // Start and config Kinetic Scrolling for camera movement
-      this.game.kineticScrolling.start();
-      this.game.kineticScrolling.configure({
-          kineticMovement: true,
-          horizontalScroll: true,
-          verticalScroll: true,
-      });
-          
-      // Adjust world bound
-      game.world.setBounds(-1000, -1000, 2000, 2000);
+        // Load plugins
+        this.game.kineticScrolling = this.game.plugins.add(Phaser.Plugin.KineticScrolling);
+    },
 
-      // Start arcade physics and add in the background
-      this.game.physics.startSystem(Phaser.Physics.ARCADE);
-      this.game.add.tileSprite(-1000, -1000, 2000, 2000, 'space');
-      
-      // Set up ScaleManager options for full screen support
-      this.game.scale.fullScreenScaleMode = Phaser.ScaleManager.SHOW_ALL;
-      fullscreenButton = this.game.add.button(game.world.camera.view.width - 40, 15, 
-        'fs-button', this.toggleFullscreen, this);
-      fullscreenButton.fixedToCamera = true;
+    create: function() {
+        // Start and config Kinetic Scrolling for camera movement
+        this.game.kineticScrolling.start();
+        this.game.kineticScrolling.configure({
+            kineticMovement: true,
+            horizontalScroll: true,
+            verticalScroll: true
+        });
 
-      // Set up bullets
-      bullets = this.game.add.group();
-      bullets.enableBody = true;
-      bullets.physicsBodyType = Phaser.Physics.ARCADE;
+        // Adjust world bound
+        game.world.setBounds(-1000, -1000, 2000, 2000);
 
-      bullets.createMultiple(50, 'bullet-laser');
-      bullets.setAll('checkWorldBounds', true);
-      bullets.setAll('outOfBoundsKill', true);
+        // Start arcade physics and add in the background
+        this.game.physics.startSystem(Phaser.Physics.ARCADE);
+        this.game.add.tileSprite(-1000, -1000, 2000, 2000, 'space');
 
-      // Set up ship
-      ship = this.game.add.sprite(350, 275, 'ship');
-      ship.anchor.setTo(0.5, 0.5);
-      this.game.physics.arcade.enable(ship);
-      ship.body.collideWorldBounds = true;
+        // Set up ScaleManager options for full screen support
+        this.game.scale.fullScreenScaleMode = Phaser.ScaleManager.SHOW_ALL;
+        fullscreenButton = this.game.add.button(game.world.camera.view.width - 40, 15,
+            'fs-button', this.toggleFullscreen, this);
+        fullscreenButton.fixedToCamera = true;
 
-      // Ship ship properties for acceleration
-      ship.body.maxAngular = 100;
-      ship.body.angularDrag = 100;
-      ship.body.drag = 500;
+        // Set up bullets
+        bullets = this.game.add.group();
+        bullets.enableBody = true;
+        bullets.physicsBodyType = Phaser.Physics.ARCADE;
 
-      // Initiate controls
-      fire = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-      fire.onDown.add(this.fireWeapon, this);
-      
-      this.game.input.onTap.add(this.moveOnDoubleTap, this);
-  },
-  
-  // This second parameter is not well documented, but it's there and uses
-  // game.input.doubleTapeRate to judge.
-  // @see https://github.com/photonstorm/phaser/blob/486c15f16fd7c2f154d55cb0239fa0dbdeaed1f8/src/input/Pointer.js#L930
-  moveOnDoubleTap: function(pointer, doubleTap) {
-      if (doubleTap) {
-        
-          // Destory any existing crosshair
-          if (this.movementTarget && this.movementTarget.alive) {
-              this.movementTarget.destroy();
-          }
-          
-          // Create new crosshair
-          this.movementTarget = this.game.add.sprite(pointer.worldX, 
+        bullets.createMultiple(50, 'bullet-laser');
+        bullets.setAll('checkWorldBounds', true);
+        bullets.setAll('outOfBoundsKill', true);
+
+        // Set up ship
+        ship = this.game.add.sprite(350, 275, 'ship');
+        ship.anchor.setTo(0.5, 0.5);
+        this.game.physics.arcade.enable(ship);
+        ship.body.collideWorldBounds = true;
+
+        // Ship ship properties for acceleration
+        ship.body.maxAngular = 100;
+        ship.body.angularDrag = 100;
+        ship.body.drag = 500;
+
+        // Initiate controls
+        fire = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+        fire.onDown.add(this.fireWeapon, this);
+
+        this.game.input.onTap.add(this.moveOnDoubleTap, this);
+    },
+
+    // This second parameter is not well documented, but it's there and uses
+    // game.input.doubleTapeRate to judge.
+    // @see https://github.com/photonstorm/phaser/blob/486c15f16fd7c2f154d55cb0239fa0dbdeaed1f8/src/input/Pointer.js#L930
+    moveOnDoubleTap: function(pointer, doubleTap) {
+        if (doubleTap) {
+
+            // Destory any existing crosshair
+            if (this.movementTarget && this.movementTarget.alive) {
+                this.movementTarget.destroy();
+            }
+
+            // Create new crosshair
+            this.movementTarget = this.game.add.sprite(pointer.worldX,
               pointer.worldY, 'crosshair');
-          game.physics.arcade.enable(this.movementTarget);
-          
-          // Turn ship towards crosshair
-          var targetAngle = this.game.physics.arcade.angleToPointer(ship, pointer) + Math.PI / 2;
-          ship.rotation = targetAngle;
+            game.physics.arcade.enable(this.movementTarget);
 
-          // Initiate ship movement
-          this.game.physics.arcade.moveToPointer(ship);
-          
-          // Adjust camera to follow ship
-          this.game.camera.follow(ship);
-      }
-  },
+            // Turn ship towards crosshair
+            ship.rotation = this.game.physics.arcade.angleToPointer(ship, pointer) + Math.PI / 2;;
 
-  update: function() {
-      // Check for a movementTarget and update when the ship arrives
-      if (this.movementTarget && this.movementTarget.alive) {
-          
+            // Initiate ship movement
+            this.game.physics.arcade.moveToPointer(ship);
+
+            // Adjust camera to follow ship
+            this.game.camera.follow(ship);
+        }
+    },
+
+    update: function() {
+        // Check for a movementTarget and update when the ship arrives
+        if (this.movementTarget && this.movementTarget.alive) {
+
           // Stop ship on overlap
           if (game.physics.arcade.overlap(ship, this.movementTarget)) {
               ship.body.velocity.x = 0;
@@ -105,47 +104,46 @@ var PSF = {
               this.game.camera.unfollow(ship);
               this.movementTarget.destroy();
           }
-      }
-  },
+        }
+    },
 
-  render: function() {
-      if (this.debugMode == true) {
-          game.debug.cameraInfo(game.camera, 32, 220);
-          game.debug.spriteInfo(ship, 32, 32);
-          game.debug.text('angularVelocity: ' + ship.body.angularVelocity, 32, 120);
-          game.debug.text('angularAcceleration: ' + ship.body.angularAcceleration, 32, 140);
-          game.debug.text('angularDrag: ' + ship.body.angularDrag, 32, 160);
-          game.debug.text('deltaZ: ' + ship.body.deltaZ(), 32, 180);
-          game.debug.text('velocity: (x = ' + ship.body.velocity.x +
+    render: function() {
+        if (this.debugMode == true) {
+            game.debug.cameraInfo(game.camera, 32, 220);
+            game.debug.spriteInfo(ship, 32, 32);
+            game.debug.text('angularVelocity: ' + ship.body.angularVelocity, 32, 120);
+            game.debug.text('angularAcceleration: ' + ship.body.angularAcceleration, 32, 140);
+            game.debug.text('angularDrag: ' + ship.body.angularDrag, 32, 160);
+            game.debug.text('deltaZ: ' + ship.body.deltaZ(), 32, 180);
+            game.debug.text('velocity: (x = ' + ship.body.velocity.x +
               ', y = ' + ship.body.velocity.y + ')', 32, 200);
-          game.debug.text('Active Bullets: ' + bullets.countLiving() +
+            game.debug.text('Active Bullets: ' + bullets.countLiving() +
               ' / ' + bullets.total, 32, 300);
-      }
-  },
+        }
+    },
 
-  toggleFullscreen: function() {
-      if (game.scale.isFullScreen) {
-          game.scale.stopFullScreen();
-      }
-      else {
-          game.scale.startFullScreen(false);
-      }
-  },
-  
-  fireWeapon: function() {
-      if (game.time.now > this.nextFire && bullets.countDead() > 0) {
-          this.nextFire = game.time.now + this.fireRate;
+    toggleFullscreen: function() {
+        if (game.scale.isFullScreen) {
+            game.scale.stopFullScreen();
+        }
+        else {
+            game.scale.startFullScreen(false);
+        }
+    },
 
-          var bullet = bullets.getFirstDead();
-          bullet.reset(ship.x, ship.y - 10);
+    fireWeapon: function() {
+        if (game.time.now > this.nextFire && bullets.countDead() > 0) {
+            this.nextFire = game.time.now + this.fireRate;
 
-          bullet.angle = ship.angle;
-          game.physics.arcade.velocityFromAngle(bullet.angle - 90, 500,
-              bullet.body.velocity)
-      }
-  },
-  
-}
+            var bullet = bullets.getFirstDead();
+            bullet.reset(ship.x, ship.y - 10);
+
+            bullet.angle = ship.angle;
+            game.physics.arcade.velocityFromAngle(bullet.angle - 90, 500,
+                bullet.body.velocity)
+        }
+    }
+};
 
 var game = new Phaser.Game(800, 600, Phaser.AUTO, 'game-canvas');
 game.state.add('PSF', PSF);
