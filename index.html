@@ -3,13 +3,44 @@
 <head>
     <meta charset="UTF-8" />
     <title>space flyer</title>
-    <script src="lib/phaser.js"></script>
+    <script src="lib/phaser.min.js"></script>
     <script src="lib/phaser-kinetic-scrolling-plugin.js"></script>
+    <script src="js/Boot.js"></script>
+    <script src="js/Preloader.js"></script>
+    <!-- <script src="js/MainMenu.js"></script> -->
     <script src="js/PSF.js"></script>
+    <style>
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+        }
+    </style>
+    <meta name="viewport"
+          content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
 </head>
 <body>
 
-<div id="game-canvas"></div>
+<script type="text/javascript">
+    (function() {
+
+        //	100% of the browser window - see Boot.js for additional configuration
+        var SAFE_ZONE_WIDTH = 960 * window.devicePixelRatio;
+        var SAFE_ZONE_HEIGHT = 640 * window.devicePixelRatio;
+        var game = new Phaser.Game(SAFE_ZONE_WIDTH, SAFE_ZONE_HEIGHT, Phaser.AUTO, '');
+
+        //	Add the States your game has.
+        game.state.add('Boot', PSF.Boot);
+        game.state.add('Preloader', PSF.Preloader);
+        // game.state.add('MainMenu', PSF.MainMenu);
+        game.state.add('Game', PSF.Game);
+
+        //	Now start the Boot state.
+        game.state.start('Boot');
+    })();
+
+</script>
 
 </body>
 </html>

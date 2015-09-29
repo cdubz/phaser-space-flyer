@@ -1,4 +1,8 @@
-var PSF = {
+PSF.Game = function(game) {
+
+};
+
+PSF.Game.prototype = {
 
     // Main config elements
     debugMode: false,
@@ -28,7 +32,7 @@ var PSF = {
         });
 
         // Adjust world bound
-        game.world.setBounds(0, 0, 5000, 5000);
+        this.game.world.setBounds(0, 0, 5000, 5000);
 
         // Center the camera
         this.game.camera.x = this.game.world.bounds.halfWidth - this.game.camera.width / 2;
@@ -37,12 +41,6 @@ var PSF = {
         // Start arcade physics and add in the background
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
         this.game.add.tileSprite(0, 0, 5000, 5000, 'space');
-
-        // Set up ScaleManager options for full screen support
-        this.game.scale.fullScreenScaleMode = Phaser.ScaleManager.SHOW_ALL;
-        fullscreenButton = this.game.add.button(5, 5,
-            'fs-button', this.toggleFullscreen, this);
-        fullscreenButton.fixedToCamera = true;
 
         // Set up bullets
         bullets = this.game.add.group();
@@ -85,7 +83,7 @@ var PSF = {
             // Create new crosshair
             this.movementTarget = this.game.add.sprite(pointer.worldX,
               pointer.worldY, 'crosshair');
-            game.physics.arcade.enable(this.movementTarget);
+            this.game.physics.arcade.enable(this.movementTarget);
 
             // Turn ship towards crosshair
             ship.rotation = this.game.physics.arcade.angleToPointer(ship, pointer) + Math.PI / 2;;
@@ -100,7 +98,7 @@ var PSF = {
         if (this.movementTarget && this.movementTarget.alive) {
 
           // Stop ship on overlap
-          if (game.physics.arcade.overlap(ship, this.movementTarget)) {
+          if (this.game.physics.arcade.overlap(ship, this.movementTarget)) {
               ship.body.velocity.x = 0;
               ship.body.velocity.y = 0;
               this.movementTarget.destroy();
@@ -110,43 +108,29 @@ var PSF = {
 
     render: function() {
         if (this.debugMode == true) {
-            game.debug.cameraInfo(game.camera, 32, 220);
-            game.debug.spriteInfo(ship, 32, 32);
-            game.debug.text('angularVelocity: ' + ship.body.angularVelocity, 32, 120);
-            game.debug.text('angularAcceleration: ' + ship.body.angularAcceleration, 32, 140);
-            game.debug.text('angularDrag: ' + ship.body.angularDrag, 32, 160);
-            game.debug.text('deltaZ: ' + ship.body.deltaZ(), 32, 180);
-            game.debug.text('velocity: (x = ' + ship.body.velocity.x +
+            this.game.debug.cameraInfo(this.game.camera, 32, 220);
+            this.game.debug.spriteInfo(ship, 32, 32);
+            this.game.debug.text('angularVelocity: ' + ship.body.angularVelocity, 32, 120);
+            this.game.debug.text('angularAcceleration: ' + ship.body.angularAcceleration, 32, 140);
+            this.game.debug.text('angularDrag: ' + ship.body.angularDrag, 32, 160);
+            this.game.debug.text('deltaZ: ' + ship.body.deltaZ(), 32, 180);
+            this.game.debug.text('velocity: (x = ' + ship.body.velocity.x +
               ', y = ' + ship.body.velocity.y + ')', 32, 200);
-            game.debug.text('Active Bullets: ' + bullets.countLiving() +
+            this.game.debug.text('Active Bullets: ' + bullets.countLiving() +
               ' / ' + bullets.total, 32, 300);
         }
     },
 
-    toggleFullscreen: function() {
-        if (game.scale.isFullScreen) {
-            game.scale.stopFullScreen();
-        }
-        else {
-            game.scale.startFullScreen(false);
-        }
-    },
-
     fireWeapon: function() {
-        if (game.time.now > this.nextFire && bullets.countDead() > 0) {
-            this.nextFire = game.time.now + this.fireRate;
+        if (this.game.time.now > this.nextFire && bullets.countDead() > 0) {
+            this.nextFire = this.game.time.now + this.fireRate;
 
             var bullet = bullets.getFirstDead();
             bullet.reset(ship.x, ship.y - 10);
 
             bullet.angle = ship.angle;
-            game.physics.arcade.velocityFromAngle(bullet.angle - 90, 500,
+            this.game.physics.arcade.velocityFromAngle(bullet.angle - 90, 500,
                 bullet.body.velocity)
         }
     }
 };
-
-var game = new Phaser.Game(window.innerWidth * window.devicePixelRatio,
-    window.innerHeight * window.devicePixelRatio, Phaser.AUTO, 'game-canvas');
-game.state.add('PSF', PSF);
-game.state.start('PSF');
